@@ -1,0 +1,20 @@
+<div>
+  {{#if `var == "getOne"`}}
+    Cart
+    {{data._id}}
+    {{#each data.products}}
+      id product:
+      {{this.products.productId}}
+    {{/each}}
+  {{/if}}
+
+  {{#if `var == "createOne"`}}
+    New cart created.
+    {{data}}
+  {{/if}}
+
+  {{#if `var == "addProduct"`}}
+    Added product
+  {{/if}}
+
+</div>

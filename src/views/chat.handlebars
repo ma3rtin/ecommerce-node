@@ -1,0 +1,16 @@
+<div>
+  <form action="chat" method="post">
+    <label for="user">Username</label>
+    <input type="text" name="user" />
+    <label for="message">Message</label>
+    <input type="text" name="message" />
+    <button type="submit">Send</button>
+  </form>
+
+  <h2>Messages</h2>
+  {{#each data}}
+    <div>
+      <p>{{this.user}}: {{this.message}}</p>
+    </div>
+  {{/each}}
+</div>
