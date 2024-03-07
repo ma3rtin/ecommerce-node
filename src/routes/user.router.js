@@ -10,7 +10,8 @@ import {
   getRestorePassword,
   postRestorePassword,
   getRestoreUserPassword,
-  postRestoreUserPassword
+  postRestoreUserPassword,
+  changeRole
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -25,7 +26,7 @@ userRouter.get("/login", getLogin);
 
 userRouter.get("/register", getRegister);
 
-userRouter.get("/logout", logOut);
+userRouter.get("/logout",passport.authenticate("jwt", { session: false }), logOut);
 
 userRouter.get("/restorepassword", getRestorePassword)
 
@@ -34,4 +35,6 @@ userRouter.post("/restorepassword", postRestorePassword)
 userRouter.get("/restoreuserpassword/:token", getRestoreUserPassword)
 
 userRouter.post("/restoreuserpassword", postRestoreUserPassword)
+
+userRouter.get("/changerole",passport.authenticate("jwt", { session: false }), changeRole)
 export default userRouter;

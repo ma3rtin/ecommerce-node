@@ -64,21 +64,36 @@ export const postRestorePassword = async (req, res) => {
   }
 };
 
-
-export const getRestoreUserPassword = async(req, res)=>{
+export const getRestoreUserPassword = async (req, res) => {
   const { token } = req.params;
-  if(!token)res.send({status: "token not found"});
-  else res.render("updatePassword", {token});
-}
+  if (!token) res.send({ status: "token not found" });
+  else res.render("updatePassword", { token });
+};
 
 export const postRestoreUserPassword = async (req, res) => {
-  const {token, password} = req.body;
+  const { token, password } = req.body;
   const userToUpdate = decodeToken(token);
   if (!token || !password || !userToUpdate) res.send({ status: "error" });
   else {
     console.log(userToUpdate);
     userToUpdate.user.password = createHash(password);
-    const response = await userService.updateOne(userToUpdate.user.email, userToUpdate.user);
+    const response = await userService.updateOne(
+      userToUpdate.user.email,
+      userToUpdate.user
+    );
     res.send({ payload: response });
+  }
+};
+
+export const changeRole = async (req, res) => {
+  if (req.user.user.role == "admin")
+    res.send({ status: "admin cannot change role" });
+  else {
+    req.user.user.role = req.user.user.role == "premium" ? "user" : "premium";
+    const response = await userService.updateOne(
+      req.user.user.email,
+      req.user.user
+    );
+    res.redirect("logout");
   }
 };

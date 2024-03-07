@@ -6,9 +6,8 @@ const productService = new ProductDB();
 const ticketService = new TicketDB();
 
 export const getCartById = async (req, res) => {
- if(!req.user)res.send({status: "error"})
+  if (!req.user) res.send({ status: "error" });
   try {
-    
     const cart = await cartService.getOne(req.user.user.cart);
     res.send(cart);
   } catch (error) {
@@ -25,12 +24,12 @@ export const createCart = async (req, res) => {
 
 export const addProductToCart = async (req, res) => {
   const productId = req.params.pid;
-  console.log("req user: ", req.user)
-  const cartId = req.user.user.cart;
-
-  const cart = await cartService.addProduct(cartId, productId);
-
-  res.send({ payload: cart });
+  const cart = req.user.user.cart;
+  const prod = productService.getOne(productId);
+  if (prod && prod[0].owner != req.user.user.email) {
+    const response = await cartService.addProduct(cart, productId);
+    res.send({ payload: response });
+  } else res.send({ status: "error" });
 };
 
 export const purchaseCart = async (req, res) => {
