@@ -1,6 +1,6 @@
 import ProductDB from "../dao/dbManagers/dbProduct.js";
 import { productsModel } from "../dao/models/product.model.js";
-import { generateProducts } from '../utils.js';
+import { generateProducts } from "../utils.js";
 
 const productService = new ProductDB();
 
@@ -10,12 +10,19 @@ export const getProducts = async (req, res) => {
   let sort = parseInt(req.query.sort) || 1;
   let query = req.query.query;
 
-  const products = await productsModel.paginate( {},{ page, limit, sort: { title: sort }, lean: true });
-  
-  products.prevLink = products.hasPrevPage ? `http://localhost:8080/api/products?page=${products.prevPage}`: "";
+  const products = await productsModel.paginate(
+    {},
+    { page, limit, sort: { title: sort }, lean: true }
+  );
 
-  products.nextLink = products.hasNextPage ? `http://localhost:8080/api/products?page=${products.nextPage}`: "";
-  
+  products.prevLink = products.hasPrevPage
+    ? `http://localhost:8080/api/products?page=${products.prevPage}`
+    : "";
+
+  products.nextLink = products.hasNextPage
+    ? `http://localhost:8080/api/products?page=${products.nextPage}`
+    : "";
+
   products.isValid = !(page <= 0 || page > products.totalPages);
 
   res.render("products", products);
@@ -35,6 +42,11 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   let newProduct = req.body;
+
+  if (req.user.user.role == "premium") {
+    newProduct.owner = req.user.user.email;
+  }
+
   const result = await productService.createOne(newProduct);
 
   res.send({ result });
@@ -42,35 +54,39 @@ export const createProduct = async (req, res) => {
 
 export const putProduct = async (req, res) => {
   try {
+    let { pid } = req.params;
+    let productNew = req.body;
+    const prod = await productService.getOne(pid);
+    
+    if (!prod) res.send({ status: "product not found" });
 
-      let { pid } = req.params;
+    if (req.user.user.role == "premium" && req.user.user.email != prod[0].owner)
+      res.send({ status: "access to product denied" });
 
-      let productNew = req.body;
+    let resp = await productService.updateOne(pid, productNew);
 
-      // console.log(pid, productNew);
-      console.log(productNew);
-
-      let resp = await productService.updateOne(pid, productNew);
-
-      res.send({ status: 'ok', message: resp, payload: resp });
+    res.send({ status: "ok", message: resp, payload: resp });
   } catch (error) {
-      res.status(500).send({ status: 'error', message: error });
+    res.status(500).send({ status: "error", message: error });
   }
-}
+};
 
 export const deleteProductById = async (req, res) => {
   const id = req.params.pid;
+
+  const prod = await productService.getOne(id);
+  if (!prod) res.send({ status: "product not found" });
+  if (req.user.user.role == "premium" && req.user.user.email != prod[0].owner)
+    res.send({ status: "access to product denied" });
+
   const result = await productService.deleteOne(id);
   res.render("products", { status: "ok", payload: result });
 };
 
-
 export const getMockingProducts = async (req, res) => {
-
   const productsFaker = generateProducts();
 
   console.log(productsFaker);
 
   res.send({ status: "ok", payload: productsFaker });
-}
-
+};

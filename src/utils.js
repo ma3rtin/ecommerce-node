@@ -57,14 +57,13 @@ const storage = multer.diskStorage({
   },
 });
 
-export const autorization = (role) => {
-  return (req, res, next) => {
-    console.log(req.user.user);
-    if (!req.user.user) return res.status(401).send({ error: "Unauthorized" });
-    if (req.user.user.role !== role)
-      return res.status(403).send({ error: "No permissions" });
-    next();
-  };
+export const autorization = (...roles) => {
+if(roles.includes(req.user.user.role))next();
+else if (!req.user.user){
+  return res.status(401).send({ error: "Unauthorized" });
+}else{
+  return res.status(403).send({ error: "No permissions" });
+}
 };
 
 export const generateProducts = () => {

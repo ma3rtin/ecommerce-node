@@ -10,11 +10,11 @@ productRouter.get("/",passport.authenticate("jwt", { session: false }), getProdu
 
 productRouter.get('/:id',passport.authenticate("jwt", { session: false }), getProductById)
 
-productRouter.post("/",passport.authenticate("jwt", { session: false }), autorization("admin"), createProduct);
+productRouter.post("/",passport.authenticate("jwt", { session: false }), autorization("admin", "premium"), createProduct);
 
-productRouter.put('/:pid', passport.authenticate('jwt', {session: false}), autorization("admin"), putProduct);
+productRouter.put('/:pid', passport.authenticate('jwt', {session: false}), autorization("admin", "premium"), putProduct);
 
-productRouter.delete("/:pid",passport.authenticate("jwt", { session: false }), autorization("admin"), deleteProductById)
+productRouter.delete("/:pid",passport.authenticate("jwt", { session: false }), autorization("admin", "premium"), deleteProductById)
 
 productRouter.get('/mockingproducts/mock', getMockingProducts);
 
